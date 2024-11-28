@@ -1,4 +1,5 @@
 <?php
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
@@ -6,50 +7,49 @@ use PHPMailer\PHPMailer\Exception;
 require '../vendor/autoload.php'; // Cambia la ruta si no usas Composer
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $name = htmlspecialchars($_POST['name']);
-    $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
-    $subject = htmlspecialchars($_POST['subject']);
-    $message = htmlspecialchars($_POST['message']);
+  $name = htmlspecialchars($_POST['name']);
+  $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
+  $subject = htmlspecialchars($_POST['subject']);
+  $message = htmlspecialchars($_POST['message']);
 
-    if (!$name || !$email || !$subject || !$message) {
-        die('Por favor, completa todos los campos.');
-    }
+  if (!$name || !$email || !$subject || !$message) {
+    die('Por favor, completa todos los campos.');
+  }
 
-    $mail = new PHPMailer(true);
+  $mail = new PHPMailer(true);
 
-    try {
-        // Configuración del servidor SMTP
-        $mail->isSMTP();
-        $mail->SMTPDebug = 2;
-        $mail->Host = 'smtp.gmail.com';
-        $mail->SMTPAuth = true;
-        $mail->Username = 'grupo004sa@gmail.com'; // Tu correo de Gmail
-        $mail->Password = 'vyekbhjvptksovik';  // Contraseña de aplicación
-        $mail->SMTPSecure = 'tls';
-        $mail->Port = 587;
+  try {
+    // Configuración del servidor SMTP
+    $mail->isSMTP();
+    $mail->Host = 'smtp.gmail.com';
+    $mail->SMTPAuth = true;
+    $mail->Username = 'grupo004sa@gmail.com';
+    $mail->Password = 'vyekbhjvptksovik';
+    $mail->SMTPSecure = 'tls';
+    $mail->Port = 587;
 
-        // Configuración del correo
-        $mail->setFrom('grupo004sa@gmail.com', 'Formulario de Contacto'); // Desde
-        $mail->addAddress('grupo004sa@gmail.com'); // Destinatario principal
-        $mail->addReplyTo($email, $name); // Responder al remitente
+    // Configuración del correo
+    $mail->setFrom('grupo004sa@gmail.com', 'Formulario de Contacto');
+    $mail->addAddress('grupo004sa@gmail.com'); // Destinatario
+    $mail->addReplyTo($_POST['email'], $_POST['name']); // Responder al remitente
 
-        // Contenido del correo
-        $mail->isHTML(true);
-        $mail->Subject = $subject;
-        $mail->Body    = "
-            <h3>Nuevo mensaje desde el formulario de contacto</h3>
-            <p><strong>De:</strong> $name ($email)</p>
-            <p><strong>Asunto:</strong> $subject</p>
-            <p><strong>Mensaje:</strong><br>$message</p>
-        ";
-        $mail->AltBody = "De: $name ($email)\nAsunto: $subject\nMensaje:\n$message";
+    // Contenido del mensaje
+    $mail->isHTML(true);
+    $mail->Subject = htmlspecialchars($_POST['subject']);
+    $mail->Body = "
+        <h3>Nuevo mensaje desde el formulario de contacto</h3>
+        <p><strong>De:</strong> " . htmlspecialchars($_POST['name']) . " (" . htmlspecialchars($_POST['email']) . ")</p>
+        <p><strong>Asunto:</strong> " . htmlspecialchars($_POST['subject']) . "</p>
+        <p><strong>Mensaje:</strong><br>" . nl2br(htmlspecialchars($_POST['message'])) . "</p>
+    ";
+    $mail->AltBody = "De: " . htmlspecialchars($_POST['name']) . " (" . htmlspecialchars($_POST['email']) . ")\n
+    Asunto: " . htmlspecialchars($_POST['subject']) . "\n
+    Mensaje: " . htmlspecialchars($_POST['message']);
 
-        // Enviar correo
-        $mail->send();
-        echo 'OK'; // Respuesta que detecta validate.js como éxito
-    } catch (Exception $e) {
-        echo 'Error: ' . $mail->ErrorInfo;
-    }
-} else {
-    echo 'Método de solicitud no válido.';
+    // Envía el correo
+    $mail->send();
+    echo 'Correo enviado exitosamente'; // Muestra un mensaje sencillo al usuario
+  } catch (Exception $e) {
+    echo 'Hubo un error al enviar el correo. Intenta nuevamente.';
+  }
 }
