@@ -20,6 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     try {
         // Configuración del servidor SMTP
         $mail->isSMTP();
+        $mail->SMTPDebug = 2;
         $mail->Host = 'smtp.gmail.com';
         $mail->SMTPAuth = true;
         $mail->Username = 'grupo004sa@gmail.com'; // Tu correo de Gmail
